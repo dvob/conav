@@ -4,9 +4,11 @@ import (
 	"flag"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/dvob/conav"
 	"github.com/dvob/conav/report/so"
+	"github.com/gorilla/handlers"
 	"golang.org/x/crypto/acme/autocert"
 )
 
@@ -24,10 +26,10 @@ func main() {
 
 	solothurnCaseReporter := so.NewCaseReporter()
 	caseReportHandler := conav.NewCaseReportHanlder(solothurnCaseReporter)
-	http.Handle("/", caseReportHandler)
 
 	s := &http.Server{
-		Addr: addr,
+		Addr:    addr,
+		Handler: handlers.LoggingHandler(os.Stdout, caseReportHandler),
 	}
 
 	if tls {
