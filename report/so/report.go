@@ -2,6 +2,7 @@ package so
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -36,7 +37,16 @@ func (cr *CaseReporter) GetCaseReport(ctx context.Context) (*conav.CantonReport,
 }
 
 func (cr *CaseReporter) GetCaseReportByMunicipality(ctx context.Context, name string) (*conav.MunicipalityReport, error) {
-	return &conav.MunicipalityReport{}, nil
+	report, err := cr.GetCaseReport(ctx)
+	if err != nil {
+		return nil, err
+	}
+	for _, m := range report.MunicipalityReports {
+		if m.Name == name {
+			return &m, nil
+		}
+	}
+	return nil, fmt.Errorf("municipality with name '%s' not found")
 }
 
 func (cr *CaseReporter) fetch() (*conav.CantonReport, error) {
